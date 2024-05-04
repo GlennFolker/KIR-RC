@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">KIR Remote-Control</string>
+    <string name="app_description">An Android application developed by the scientific youth group team of SMAN 1
+        Cikarang Pusat to remotely control an Arduino-powered electric toy car via Bluetooth.
+    </string>
+</resources>

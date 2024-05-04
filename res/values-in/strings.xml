@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_description">Sebuah aplikasi Android yang dikembangkan oleh tim karya ilmiah remaja SMAN 1
+        Cikarang Pusat untuk mengendalikan mobil listrik Arduino dari jarak jauh dengan menggunakan transmisi sinyal
+        Bluetooth.
+    </string>
+</resources>
