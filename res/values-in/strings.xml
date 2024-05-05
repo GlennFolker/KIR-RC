@@ -5,4 +5,7 @@
         Bluetooth.
     </string>
     <string name="try_pair">Pasang dengan Bluetooth</string>
+    <string name="bluetooth_unsupported">Perangkat ini tidak mendukung Bluetooth sehingga tidak dapat menjalankan
+        aplikasi KIR Remote-Control.
+    </string>
 </resources>

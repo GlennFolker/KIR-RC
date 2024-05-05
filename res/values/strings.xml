@@ -5,4 +5,5 @@
         Cikarang Pusat to remotely control an Arduino-powered electric toy car via Bluetooth.
     </string>
     <string name="try_pair">Pair via Bluetooth</string>
+    <string name="bluetooth_unsupported">This device does not support Bluetooth and may not run KIR Remote-Control.</string>
 </resources>
