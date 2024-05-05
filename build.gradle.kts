@@ -11,14 +11,20 @@ repositories {
     mavenCentral()
 }
 
+dependencies {
+    implementation("androidx.activity:activity-ktx:1.9.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.fragment:fragment-ktx:1.7.0")
+}
+
 android {
-    namespace = "com.github.GlennFolker.kirrc"
+    namespace = "com.github.glennfolker.kirrc"
     compileSdk = 34
     buildToolsVersion = "34.0.0"
 
     defaultConfig {
-        applicationId = "com.github.GlennFolker.kirrc"
-        minSdk = 18
+        applicationId = "com.github.glennfolker.kirrc"
+        minSdk = 19
         targetSdk = 34
         versionCode = 1
         versionName = "0.1.0"
@@ -68,5 +74,5 @@ android {
 
 tasks.register<Exec>("run") {
     mustRunAfter(tasks.getByName("installDebug"), tasks.getByName("installRelease"))
-    commandLine("adb", "shell", "am", "start", "-n", "com.github.GlennFolker.kirrc/kirrc.KIRActivity")
+    commandLine("adb", "shell", "am", "start", "-n", "com.github.glennfolker.kirrc/com.github.glennfolker.kirrc.KIRActivity")
 }

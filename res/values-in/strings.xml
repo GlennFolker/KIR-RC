@@ -4,4 +4,5 @@
         Cikarang Pusat untuk mengendalikan mobil listrik Arduino dari jarak jauh dengan menggunakan transmisi sinyal
         Bluetooth.
     </string>
+    <string name="try_pair">Pasang dengan Bluetooth</string>
 </resources>
