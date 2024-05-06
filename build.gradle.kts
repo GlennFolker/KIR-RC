@@ -24,7 +24,7 @@ android {
 
     defaultConfig {
         applicationId = "com.github.glennfolker.kirrc"
-        minSdk = 21
+        minSdk = 19
         targetSdk = 34
         versionCode = 1
         versionName = "0.1.0"

@@ -4,7 +4,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent" android:id="@+id/root_request" android:gravity="center">
     <Button
-        android:text="@string/try_pair"
+        android:text="@string/bluetooth_connect"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" android:id="@+id/btn_try_pair"
         android:drawableStart="@android:drawable/stat_sys_data_bluetooth"/>

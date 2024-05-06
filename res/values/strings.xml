@@ -4,6 +4,8 @@
     <string name="app_description">An Android application developed by the scientific youth group team of SMAN 1
         Cikarang Pusat to remotely control an Arduino-powered electric toy car via Bluetooth.
     </string>
-    <string name="try_pair">Pair via Bluetooth</string>
+    <string name="bluetooth_connect">Connect via Bluetooth</string>
     <string name="bluetooth_unsupported">This device does not support Bluetooth and may not run KIR Remote-Control.</string>
+    <string name="bluetooth_denied_permission">Please allow permissions to connect via Bluetooth.</string>
+    <string name="bluetooth_denied_request">Please allow enabling Bluetooth.</string>
 </resources>

@@ -4,8 +4,10 @@
         Cikarang Pusat untuk mengendalikan mobil listrik Arduino dari jarak jauh dengan menggunakan transmisi sinyal
         Bluetooth.
     </string>
-    <string name="try_pair">Pasang dengan Bluetooth</string>
+    <string name="bluetooth_connect">Hubungkan dengan Bluetooth</string>
     <string name="bluetooth_unsupported">Perangkat ini tidak mendukung Bluetooth sehingga tidak dapat menjalankan
         aplikasi KIR Remote-Control.
     </string>
+    <string name="bluetooth_denied_permission">Mohon izinkan aplikasi untuk menggunakan koneksi Bluetooth.</string>
+    <string name="bluetooth_denied_request">Mohon nyalakan Bluetooth.</string>
 </resources>
