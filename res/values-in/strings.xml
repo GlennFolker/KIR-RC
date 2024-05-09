@@ -10,4 +10,5 @@
     </string>
     <string name="bluetooth_denied_permission">Mohon izinkan aplikasi untuk menggunakan koneksi Bluetooth.</string>
     <string name="bluetooth_denied_request">Mohon nyalakan Bluetooth.</string>
+    <string name="bluetooth_connect_list">Hubungkan</string>
 </resources>

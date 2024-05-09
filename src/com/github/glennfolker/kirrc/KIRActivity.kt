@@ -23,11 +23,6 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
 
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private var bluetoothScanning: Boolean = false
-    private val bluetoothCallback: ScanCallback = object: ScanCallback() {
-        override fun onScanResult(callbackType: Int, result: ScanResult?) {
-
-        }
-    }
 
     private val enableBluetooth: ActivityResultLauncher<Intent> = registerForActivityResult(StartActivityForResult()) { result ->
         if(
@@ -44,12 +39,28 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
 
             val scanner = bluetoothAdapter.bluetoothLeScanner
 
+            val list = ConnectFragment()
+            val callback = object: ScanCallback() {
+                override fun onScanResult(callbackType: Int, result: ScanResult) {
+                    list.adapter.add(result.device)
+                    list.adapter.notifyItemInserted(list.adapter.size() - 1)
+                }
+
+                override fun onScanFailed(errorCode: Int) {
+                    throw RuntimeException("Error $errorCode")
+                }
+            }
+
             @Suppress("MissingPermission") // I *LITERALLY* just checked the permission RIGHT ABOVE YOU. Shut the hell up, IntelliJ.
             scanner.startScan(
                 listOf(ScanFilter.Builder().setServiceUuid(ParcelUuid(BLUETOOTH_UUID)).build()),
                 ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build(),
-                bluetoothCallback
+                callback
             )
+
+            supportFragmentManager.commit {
+                replace(R.id.root_fragment, list)
+            }
 
             Thread {
                 Looper.prepare()
@@ -58,9 +69,10 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
                 Handler(looper).postDelayed({
                     looper.quit()
                     bluetoothScanning = false
+                    load.dismiss()
 
-                    @Suppress("MissingPermission") // AND AGAIN.
-                    scanner.stopScan(bluetoothCallback)
+                    @Suppress("MissingPermission")
+                    scanner.stopScan(callback)
                 }, 5000)
 
                 Looper.loop()
