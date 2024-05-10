@@ -7,6 +7,7 @@ import android.content.*
 import android.content.pm.*
 import android.os.*
 import android.os.Build.*
+import android.util.*
 import androidx.activity.result.*
 import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.appcompat.app.*
@@ -35,32 +36,41 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
             bluetoothScanning = true
 
             val load = LoadFragment()
+            var dismissed = false
             load.show(supportFragmentManager, "fragment-load")
 
             val scanner = bluetoothAdapter.bluetoothLeScanner
-
             val list = ConnectFragment()
+
             val callback = object: ScanCallback() {
                 override fun onScanResult(callbackType: Int, result: ScanResult) {
                     list.adapter.add(result.device)
-                    list.adapter.notifyItemInserted(list.adapter.size() - 1)
+
+                    synchronized(load) {
+                        if(!dismissed) {
+                            dismissed = true
+                            load.dismiss()
+                        }
+                    }
                 }
 
                 override fun onScanFailed(errorCode: Int) {
-                    throw RuntimeException("Error $errorCode")
+                    Log.e("ScanCallback", "Scanning bluetooth failed, error code $errorCode.")
                 }
             }
-
-            @Suppress("MissingPermission") // I *LITERALLY* just checked the permission RIGHT ABOVE YOU. Shut the hell up, IntelliJ.
-            scanner.startScan(
-                listOf(ScanFilter.Builder().setServiceUuid(ParcelUuid(BLUETOOTH_UUID)).build()),
-                ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build(),
-                callback
-            )
 
             supportFragmentManager.commit {
                 replace(R.id.root_fragment, list)
             }
+
+            @Suppress("MissingPermission")
+            scanner.startScan(
+                listOf(ScanFilter.Builder().setServiceUuid(ParcelUuid(BLUETOOTH_UUID)).build()),
+                ScanSettings.Builder()
+                    .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                    .build(),
+                callback
+            )
 
             Thread {
                 Looper.prepare()
@@ -69,11 +79,17 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
                 Handler(looper).postDelayed({
                     looper.quit()
                     bluetoothScanning = false
-                    load.dismiss()
+
+                    synchronized(load) {
+                        if(!dismissed) {
+                            dismissed = true
+                            load.dismiss()
+                        }
+                    }
 
                     @Suppress("MissingPermission")
                     scanner.stopScan(callback)
-                }, 5000)
+                }, 10000)
 
                 Looper.loop()
             }.start()
@@ -85,9 +101,9 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
     private val requestBluetooth: ActivityResultLauncher<Array<String>> = registerForActivityResult(RequestMultiplePermissions()) { granted ->
         if(
             if(VERSION.SDK_INT >= VERSION_CODES.S) {
-                (granted[permission.BLUETOOTH_CONNECT]!! && granted[permission.BLUETOOTH_SCAN]!!)
+                granted[permission.BLUETOOTH_CONNECT]!! && granted[permission.BLUETOOTH_SCAN]!!
             } else {
-                (granted[permission.BLUETOOTH]!! && granted[permission.BLUETOOTH_ADMIN]!!)
+                granted[permission.ACCESS_FINE_LOCATION]!!
             }
         ) {
             enableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
@@ -117,7 +133,27 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
         requestBluetooth.launch(if(VERSION.SDK_INT >= VERSION_CODES.S) {
             arrayOf(permission.BLUETOOTH_CONNECT, permission.BLUETOOTH_SCAN)
         } else {
-            arrayOf(permission.BLUETOOTH, permission.BLUETOOTH_ADMIN)
+            arrayOf(permission.ACCESS_FINE_LOCATION)
+        })
+    }
+
+    override fun connectBluetooth(device: BluetoothDevice) {
+        @Suppress("MissingPermission")
+        device.connectGatt(this, false, object: BluetoothGattCallback() {
+            override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
+                if(status == BluetoothGatt.GATT_SUCCESS) {
+                    when(newState) {
+                        BluetoothProfile.STATE_CONNECTED -> gatt.discoverServices()
+                        BluetoothProfile.STATE_DISCONNECTED -> gatt.close()
+                    }
+                } else {
+                    gatt.close()
+                }
+            }
+
+            override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
+
+            }
         })
     }
 }
