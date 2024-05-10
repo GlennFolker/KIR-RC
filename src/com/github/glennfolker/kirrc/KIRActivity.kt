@@ -36,7 +36,6 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
             bluetoothScanning = true
 
             val load = LoadFragment()
-            var dismissed = false
             load.show(supportFragmentManager, "fragment-load")
 
             val scanner = bluetoothAdapter.bluetoothLeScanner
@@ -45,13 +44,6 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
             val callback = object: ScanCallback() {
                 override fun onScanResult(callbackType: Int, result: ScanResult) {
                     list.adapter.add(result.device)
-
-                    synchronized(load) {
-                        if(!dismissed) {
-                            dismissed = true
-                            load.dismiss()
-                        }
-                    }
                 }
 
                 override fun onScanFailed(errorCode: Int) {
@@ -77,19 +69,13 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
 
                 val looper = Looper.myLooper()!!
                 Handler(looper).postDelayed({
-                    looper.quit()
-                    bluetoothScanning = false
-
-                    synchronized(load) {
-                        if(!dismissed) {
-                            dismissed = true
-                            load.dismiss()
-                        }
-                    }
-
                     @Suppress("MissingPermission")
                     scanner.stopScan(callback)
-                }, 10000)
+
+                    looper.quit()
+                    load.dismiss()
+                    bluetoothScanning = false
+                }, 5000)
 
                 Looper.loop()
             }.start()
