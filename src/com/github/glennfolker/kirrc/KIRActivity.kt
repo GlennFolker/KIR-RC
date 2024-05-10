@@ -19,21 +19,25 @@ import java.util.*
 
 class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector {
     companion object {
-        val BLUETOOTH_UUID: UUID = UUID.fromString("0e5332cf-447c-4f20-a331-3b04719e9a91")
+        val COMMAND_SERVICE: UUID = UUID.fromString("0e5332cf-447c-4f20-a331-3b04719e9a91")
+        val COMMAND_CHARACTERISTIC: UUID = UUID.fromString("ceb56614-7633-4609-b552-f6770eea1c1f")
     }
 
     private lateinit var bluetoothAdapter: BluetoothAdapter
-    private var bluetoothScanning: Boolean = false
+    private var commandGatt: BluetoothGatt? = null
+    private var commandCharacteristic: BluetoothGattCharacteristic? = null
+
+    private var scanning: Boolean = false
 
     private val enableBluetooth: ActivityResultLauncher<Intent> = registerForActivityResult(StartActivityForResult()) { result ->
         if(
-            result.resultCode == RESULT_OK && !bluetoothScanning &&
+            result.resultCode == RESULT_OK && !scanning &&
             (
                 VERSION.SDK_INT < VERSION_CODES.S ||
                 ActivityCompat.checkSelfPermission(this, permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED
             )
         ) {
-            bluetoothScanning = true
+            scanning = true
 
             val load = LoadFragment()
             load.show(supportFragmentManager, "fragment-load")
@@ -52,12 +56,13 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
             }
 
             supportFragmentManager.commit {
+                setReorderingAllowed(true)
                 replace(R.id.root_fragment, list)
             }
 
             @Suppress("MissingPermission")
             scanner.startScan(
-                listOf(ScanFilter.Builder().setServiceUuid(ParcelUuid(BLUETOOTH_UUID)).build()),
+                listOf(ScanFilter.Builder().setServiceUuid(ParcelUuid(COMMAND_SERVICE)).build()),
                 ScanSettings.Builder()
                     .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                     .build(),
@@ -74,7 +79,7 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
 
                     looper.quit()
                     load.dismiss()
-                    bluetoothScanning = false
+                    scanning = false
                 }, 5000)
 
                 Looper.loop()
@@ -124,22 +129,67 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
     }
 
     override fun connectBluetooth(device: BluetoothDevice) {
+        val load = LoadFragment()
+        load.show(supportFragmentManager, "fragment-load")
+
         @Suppress("MissingPermission")
-        device.connectGatt(this, false, object: BluetoothGattCallback() {
-            override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
+        commandGatt = device.connectGatt(this, false, object: BluetoothGattCallback() {
+            override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
                 if(status == BluetoothGatt.GATT_SUCCESS) {
-                    when(newState) {
-                        BluetoothProfile.STATE_CONNECTED -> gatt.discoverServices()
-                        BluetoothProfile.STATE_DISCONNECTED -> gatt.close()
+                    if(newState == BluetoothProfile.STATE_CONNECTED) {
+                        gatt?.discoverServices()
                     }
                 } else {
-                    gatt.close()
+                    load.dismiss()
+
+                    gatt?.close()
+                    commandGatt = null
+
+                    supportFragmentManager.commit {
+                        setReorderingAllowed(true)
+                        replace<RequestFragment>(R.id.root_fragment)
+                    }
                 }
             }
 
-            override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
+            override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
+                load.dismiss()
+                commandCharacteristic = gatt?.getService(COMMAND_SERVICE)?.getCharacteristic(COMMAND_CHARACTERISTIC)
 
+                supportFragmentManager.commit {
+                    setReorderingAllowed(true)
+                    replace<ControlFragment>(R.id.root_fragment)
+                }
             }
         })
+    }
+
+    @Suppress("MissingPermission")
+    override fun commandBluetooth(x: Int, y: Int) {
+        commandGatt?.run {
+            commandCharacteristic?.let {
+                val payload = byteArrayOf(
+                    when(x) {
+                        1 -> 0b01
+                        -1 -> 0b10
+                        else -> 0b00
+                    },
+                    when(y) {
+                        1 -> 0b01
+                        -1 -> 0b10
+                        else -> 0b00
+                    }
+                )
+
+                @Suppress("Deprecation")
+                if(VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
+                    writeCharacteristic(it, payload, BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE)
+                } else {
+                    it.writeType = BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+                    it.value = payload
+                    writeCharacteristic(it)
+                }
+            }
+        }
     }
 }

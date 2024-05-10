@@ -58,9 +58,9 @@ android {
         getByName("main").apply {
             manifest.srcFile(layout.projectDirectory.file("AndroidManifest.xml"))
 
-            kotlin.srcDir(layout.projectDirectory.dir("src"))
-            res.srcDir(layout.projectDirectory.dir("res"))
-            jniLibs.srcDir(layout.projectDirectory.dir("libs"))
+            kotlin.setSrcDirs(listOf(layout.projectDirectory.dir("src")))
+            res.setSrcDirs(listOf(layout.projectDirectory.dir("res")))
+            jniLibs.setSrcDirs(listOf(layout.projectDirectory.dir("libs")))
         }
     }
 
