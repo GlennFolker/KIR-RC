@@ -3,13 +3,11 @@ package com.github.glennfolker.kirrc
 import android.Manifest.*
 import android.bluetooth.*
 import android.content.*
-import android.content.pm.*
 import android.os.*
 import android.os.Build.*
 import androidx.activity.result.*
 import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.appcompat.app.*
-import androidx.core.app.*
 import androidx.core.content.*
 import androidx.fragment.app.*
 import com.github.glennfolker.kirrc.fragment.*
@@ -21,21 +19,15 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
     private var bluetoothSocket: BluetoothSocket? = null
     private var bluetoothOutput: OutputStream? = null
 
-    @Suppress("MissingPermission")
     private val enableBluetooth: ActivityResultLauncher<Intent> = registerForActivityResult(StartActivityForResult()) { result ->
-        if(
-            result.resultCode == RESULT_OK &&
-            (
-                VERSION.SDK_INT < VERSION_CODES.S ||
-                ActivityCompat.checkSelfPermission(this, permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED
-            )
-        ) {
+        if(result.resultCode == RESULT_OK) {
             val list = ConnectFragment()
             supportFragmentManager.commit {
                 setReorderingAllowed(true)
                 replace(R.id.root_fragment, list)
             }
 
+            @Suppress("MissingPermission")
             bluetoothAdapter.bondedDevices
                 .filter { it.name.contains("KIR") }
                 .forEach { list.adapter.add(it) }
@@ -44,14 +36,8 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
         }
     }
 
-    private val requestBluetooth: ActivityResultLauncher<Array<String>> = registerForActivityResult(RequestMultiplePermissions()) { granted ->
-        if(
-            if(VERSION.SDK_INT >= VERSION_CODES.S) {
-                granted[permission.BLUETOOTH_CONNECT]!! && granted[permission.BLUETOOTH_SCAN]!!
-            } else {
-                granted[permission.ACCESS_FINE_LOCATION]!!
-            }
-        ) {
+    private val requestBluetooth: ActivityResultLauncher<String> = registerForActivityResult(RequestPermission()) { granted ->
+        if(granted) {
             enableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
         } else {
             AlertFragment(R.string.bluetooth_denied_permission).show(supportFragmentManager, "fragment-bluetooth-denied-permission")
@@ -76,19 +62,20 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
     }
 
     override fun requestBluetooth() {
-        requestBluetooth.launch(if(VERSION.SDK_INT >= VERSION_CODES.S) {
-            arrayOf(permission.BLUETOOTH_CONNECT, permission.BLUETOOTH_SCAN)
+        // On API level 31+, ask for permission first.
+        if(VERSION.SDK_INT >= VERSION_CODES.S) {
+            requestBluetooth.launch(permission.BLUETOOTH_CONNECT)
         } else {
-            arrayOf(permission.ACCESS_FINE_LOCATION)
-        })
+            enableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+        }
     }
 
-    @Suppress("MissingPermission")
     override fun connectBluetooth(device: BluetoothDevice) {
         val load = LoadFragment()
         load.show(supportFragmentManager, "fragment-load")
 
         Thread {
+            @Suppress("MissingPermission")
             try {
                 // The passed UUID is the defined UUID for HC-05 RFCOMM socket(s).
                 val socket = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"))
