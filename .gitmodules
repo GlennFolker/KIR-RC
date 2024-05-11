@@ -1,6 +1,0 @@
-[submodule "kir_rc_peripheral/HC05"]
-	path = kir_rc_peripheral/HC05
-	url = git@github.com:jdunmire/HC05.git
-[submodule "kir_rc_peripheral/libraries/HC05"]
-	path = kir_rc_peripheral/libraries/HC05
-	url = git@github.com:jdunmire/HC05.git
