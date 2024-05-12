@@ -5,7 +5,7 @@ enum Pins {
     BT_RECEIVE = 3
 };
 
-SoftwareSerial BtSerial(Pins::BT_RECEIVE, Pins::BT_TRANSMIT);
+SoftwareSerial BtSerial(BT_RECEIVE, BT_TRANSMIT);
 
 void setup() {
     BtSerial.begin(38400);
