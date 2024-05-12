@@ -28,9 +28,7 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
             }
 
             @Suppress("MissingPermission")
-            bluetoothAdapter.bondedDevices
-                .filter { it.name.contains("KIR") }
-                .forEach { list.adapter.add(it) }
+            bluetoothAdapter.bondedDevices.forEach { list.adapter.add(it) }
         } else {
             AlertFragment(R.string.bluetooth_denied_request).show(supportFragmentManager, "fragment-bluetooth-denied-request")
         }
@@ -61,7 +59,7 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
         }
     }
 
-    override fun requestBluetooth() {
+    override fun request() {
         // On API level 31+, ask for permission first.
         if(VERSION.SDK_INT >= VERSION_CODES.S) {
             requestBluetooth.launch(permission.BLUETOOTH_CONNECT)
@@ -70,7 +68,18 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
         }
     }
 
-    override fun connectBluetooth(device: BluetoothDevice) {
+    override fun cancel() {
+        bluetoothSocket?.run { close() }
+        bluetoothSocket = null
+        bluetoothOutput = null
+
+        supportFragmentManager.commit {
+            setReorderingAllowed(true)
+            replace<RequestFragment>(R.id.root_fragment)
+        }
+    }
+
+    override fun connect(device: BluetoothDevice) {
         val load = LoadFragment()
         load.show(supportFragmentManager, "fragment-load")
 
@@ -89,23 +98,19 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
                     replace<ControlFragment>(R.id.root_fragment)
                 }
             } catch(e: Exception) {
-                //TODO alert can't connect
-
-                bluetoothSocket?.run { close() }
-                bluetoothSocket = null
-                bluetoothOutput = null
+                AlertFragment(R.string.bluetooth_no_connect).show(supportFragmentManager, "fragment-bluetooth-no-connect")
+                cancel()
             }
 
             load.dismiss()
         }.start()
     }
 
-    @Suppress("MissingPermission")
-    override fun commandBluetooth(x: Int, y: Int) {
+    override fun command(x: Int, y: Int) {
         try {
             bluetoothOutput?.write(
                 // In `0b1111`, `0b0011` is used as X delta and `0b1100` is used as Y delta.
-                // A value of `0b00` means zer, `0b01` means positive, and `0b10` means negative.
+                // A value of `0b00` means zero, `0b01` means positive, and `0b10` means negative.
                 when(x) {
                     1 -> 0b01
                     -1 -> 0b10
@@ -118,15 +123,8 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
                 } shl 2)
             )
         } catch(e: IOException) {
-            bluetoothSocket?.close()
-            bluetoothSocket = null
-            bluetoothOutput = null
-
-            //TODO alert disconnected
-            supportFragmentManager.commit {
-                setReorderingAllowed(true)
-                replace<RequestFragment>(R.id.root_fragment)
-            }
+            AlertFragment(R.string.bluetooth_disconnected).show(supportFragmentManager, "fragment-bluetooth-disconnected")
+            cancel()
         }
     }
 }

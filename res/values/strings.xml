@@ -9,4 +9,7 @@
     <string name="bluetooth_denied_permission">Please allow permissions to connect via Bluetooth.</string>
     <string name="bluetooth_denied_request">Please allow enabling Bluetooth.</string>
     <string name="bluetooth_connect_list">Connect</string>
+    <string name="bluetooth_cancel">Cancel</string>
+    <string name="bluetooth_no_connect">Couldn\'t connect to the specified device.</string>
+    <string name="bluetooth_disconnected">Device disconnected; please reconnect to continue controlling.</string>
 </resources>

@@ -18,24 +18,6 @@ void loop() {
     int packet = BtSerial.read();
     int tx = packet & 0b0011, ty = (packet & 0b1100) >> 2;
 
-    // For `x`, 1 means "turn right" while -1 means "turn left".
-    // For `y`, 1 means "forward", while -1 means... I don't know, that'll probably be refactored.
-    int x, y;
-    switch(tx) {
-        case 0b01: x = 1; break;
-        case 0b10: x = -1; break;
-        default: x = 0;
-    }
-
-    switch(ty) {
-        case 0b01: y = 1; break;
-        case 0b10: y = -1; break;
-        default: y = 0;
-    }
-
-    Serial.print("(x: ");
-    Serial.print(x);
-    Serial.print(", y: ");
-    Serial.print(y);
-    Serial.println(")");
+    // For `x`, 0b01 means "turn right" while 0b10 means "turn left".
+    // For `y`, 0b01 means "forward", while 0b10 means "backward".
 }

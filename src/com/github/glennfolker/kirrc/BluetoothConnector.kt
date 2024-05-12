@@ -3,9 +3,11 @@ package com.github.glennfolker.kirrc
 import android.bluetooth.*
 
 interface BluetoothConnector {
-    fun requestBluetooth()
+    fun request()
 
-    fun connectBluetooth(device: BluetoothDevice)
+    fun cancel()
 
-    fun commandBluetooth(x: Int, y: Int)
+    fun connect(device: BluetoothDevice)
+
+    fun command(x: Int, y: Int)
 }

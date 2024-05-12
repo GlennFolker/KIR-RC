@@ -19,6 +19,10 @@ class ConnectFragment: Fragment(R.layout.fragment_connect) {
         val recycler = view.findViewById<RecyclerView>(R.id.list_connect)
         recycler.adapter = adapter
 
+        view.findViewById<Button>(R.id.btn_cancel_connect).setOnClickListener { btnView ->
+            (btnView.context as? BluetoothConnector)?.cancel()
+        }
+
         return view
     }
 
@@ -50,7 +54,7 @@ class ConnectFragment: Fragment(R.layout.fragment_connect) {
             viewHolder.nameText.text = device.name ?: "Unnamed"
             viewHolder.addressText.text = device.address
             viewHolder.connectButton.setOnClickListener { btnView ->
-                (btnView.context as? BluetoothConnector)?.connectBluetooth(device)
+                (btnView.context as? BluetoothConnector)?.connect(device)
             }
         }
 

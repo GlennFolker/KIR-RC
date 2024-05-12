@@ -1,12 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
-                                              android:layout_width="match_parent"
-                                              android:layout_height="match_parent"
-                                              xmlns:app="http://schemas.android.com/apk/res-auto"
-                                              android:id="@+id/root_connect">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                   xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+                                                   android:layout_height="match_parent"
+                                                   android:id="@+id/root_connect"
+                                                   android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
+                                                   android:layout_marginTop="16dp" android:layout_marginBottom="16dp"
+>
+
+    <Button
+        android:text="@string/bluetooth_cancel"
+        android:layout_width="0dp"
+        android:layout_height="64dp" android:id="@+id/btn_cancel_connect"
+        app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" android:id="@+id/list_connect"
-        app:layoutManager="LinearLayoutManager"
-    />
-</androidx.appcompat.widget.LinearLayoutCompat>
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toTopOf="@+id/btn_cancel_connect"
+        android:id="@+id/list_connect"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

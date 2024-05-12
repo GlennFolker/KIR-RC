@@ -1,38 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
                                                    xmlns:app="http://schemas.android.com/apk/res-auto"
-                                                   xmlns:tools="http://schemas.android.com/tools" android:layout_width="wrap_content"
-                                                   android:layout_height="wrap_content"
+                                                   xmlns:tools="http://schemas.android.com/tools"
+                                                   android:layout_width="match_parent"
+                                                   android:layout_height="match_parent"
                                                    android:layout_gravity="center"
-                                                   android:id="@+id/root_control">
+                                                   android:id="@+id/root_control"
+                                                   android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
+                                                   android:layout_marginTop="16dp" android:layout_marginBottom="16dp"
+>
     <Button
         android:layout_width="96dp"
         android:layout_height="96dp" android:id="@+id/btn_control_center"
-        app:layout_constraintTop_toBottomOf="@+id/btn_control_n" app:layout_constraintStart_toEndOf="@+id/btn_control_w"
-        app:layout_constraintEnd_toStartOf="@+id/btn_control_e"
-        app:layout_constraintBottom_toTopOf="@+id/btn_control_s"/>
+        app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintTop_toTopOf="parent"/>
     <ImageButton
         android:layout_width="96dp"
         android:layout_height="96dp" app:srcCompat="@drawable/direction_n" android:id="@+id/btn_control_n"
-        android:scaleType="fitXY" app:layout_constraintTop_toTopOf="parent"
+        android:scaleType="fitCenter"
         app:layout_constraintStart_toStartOf="@+id/btn_control_center"
-        app:layout_constraintEnd_toEndOf="@+id/btn_control_center"/>
+        app:layout_constraintEnd_toEndOf="@+id/btn_control_center"
+        app:layout_constraintBottom_toTopOf="@+id/btn_control_center"/>
     <ImageButton
         android:layout_width="96dp"
         android:layout_height="96dp" app:srcCompat="@drawable/direction_e" android:id="@+id/btn_control_e"
-        android:scaleType="fitXY"
-        app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="@+id/btn_control_center"
-        app:layout_constraintBottom_toBottomOf="@+id/btn_control_center"/>
+        android:scaleType="fitCenter"
+        app:layout_constraintTop_toTopOf="@+id/btn_control_center"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_control_center"
+        app:layout_constraintStart_toEndOf="@+id/btn_control_center"/>
     <ImageButton
         android:layout_width="96dp"
         android:layout_height="96dp" app:srcCompat="@drawable/direction_s" android:id="@+id/btn_control_s"
-        android:scaleType="fitXY"
-        app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="@+id/btn_control_center"
-        app:layout_constraintStart_toStartOf="@+id/btn_control_center"/>
+        android:scaleType="fitCenter"
+        app:layout_constraintEnd_toEndOf="@+id/btn_control_center"
+        app:layout_constraintStart_toStartOf="@+id/btn_control_center"
+        app:layout_constraintTop_toBottomOf="@+id/btn_control_center"/>
     <ImageButton
         android:layout_width="96dp"
         android:layout_height="96dp" app:srcCompat="@drawable/direction_w" android:id="@+id/btn_control_w"
-        android:scaleType="fitXY"
-        app:layout_constraintStart_toStartOf="parent" app:layout_constraintBottom_toBottomOf="@+id/btn_control_center"
-        app:layout_constraintTop_toTopOf="@+id/btn_control_center"/>
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_control_center"
+        app:layout_constraintTop_toTopOf="@+id/btn_control_center"
+        app:layout_constraintEnd_toStartOf="@+id/btn_control_center"/>
+    <Button
+        android:text="@string/bluetooth_cancel"
+        android:layout_width="0dp"
+        android:layout_height="64dp" android:id="@+id/btn_cancel_control"
+        app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

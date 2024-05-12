@@ -39,12 +39,16 @@ class ControlFragment: Fragment(R.layout.fragment_control) {
             }
         }
 
+        view.findViewById<Button>(R.id.btn_cancel_control).setOnClickListener { btnView ->
+            (btnView.context as? BluetoothConnector)?.cancel()
+        }
+
         return view
     }
 
     private fun update(context: Context) {
         val x = axes[1] - axes[3]
         val y = axes[0] - axes[2]
-        (context as? BluetoothConnector)?.commandBluetooth(x, y)
+        (context as? BluetoothConnector)?.command(x, y)
     }
 }
