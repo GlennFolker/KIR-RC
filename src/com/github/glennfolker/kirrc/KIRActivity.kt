@@ -97,6 +97,8 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
                     setReorderingAllowed(true)
                     replace<ControlFragment>(R.id.root_fragment)
                 }
+
+                refresh()
             } catch(e: Exception) {
                 AlertFragment(R.string.bluetooth_no_connect).show(supportFragmentManager, "fragment-bluetooth-no-connect")
                 cancel()
@@ -106,12 +108,24 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
         }.start()
     }
 
+    override fun refresh() {
+        try {
+            // `0b1000....` means "notify"
+            bluetoothOutput?.write(0b1000 shl 4)
+        } catch(e: IOException) {
+            AlertFragment(R.string.bluetooth_disconnected).show(supportFragmentManager, "fragment-bluetooth-disconnected")
+            cancel()
+        }
+    }
+
     override fun command(x: Int, y: Int) {
         try {
             bluetoothOutput?.write(
+                // `0b0100....` means "command movement"
+                (0b0100 shl 4) or
                 // In `0b1111`, `0b0011` is used as X delta and `0b1100` is used as Y delta.
                 // A value of `0b00` means zero, `0b01` means positive, and `0b10` means negative.
-                when(x) {
+                (when(x) {
                     1 -> 0b01
                     -1 -> 0b10
                     else -> 0b00
@@ -120,7 +134,7 @@ class KIRActivity: AppCompatActivity(R.layout.activity_kir), BluetoothConnector 
                     1 -> 0b01
                     -1 -> 0b10
                     else -> 0b00
-                } shl 2)
+                } shl 2))
             )
         } catch(e: IOException) {
             AlertFragment(R.string.bluetooth_disconnected).show(supportFragmentManager, "fragment-bluetooth-disconnected")

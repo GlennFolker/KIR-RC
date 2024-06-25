@@ -9,5 +9,7 @@ interface BluetoothConnector {
 
     fun connect(device: BluetoothDevice)
 
+    fun refresh()
+
     fun command(x: Int, y: Int)
 }

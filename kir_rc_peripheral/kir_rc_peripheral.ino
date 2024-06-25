@@ -46,7 +46,7 @@ static Config Config::configs[9][2] = {
     {{BACKWARD, FAST}, {BACKWARD, FAST}},
     // (1, 0): Turn right completely.
     {{FORWARD, FAST}, {FORWARD, NONE}},
-    // (1, 1): TUrn right slightly.
+    // (1, 1): Turn right slightly.
     {{FORWARD, FAST}, {FORWARD, SLOW}},
     // (1, 2): Turn right backwards.
     {{BACKWARD, FAST}, {BACKWARD, SLOW}},
@@ -60,6 +60,9 @@ static Config Config::configs[9][2] = {
 
 SoftwareSerial BtSerial(BT_RECEIVE, BT_TRANSMIT);
 
+unsigned long stopTime;
+bool stopped;
+
 void setup() {
     BtSerial.begin(38400);
     Serial.begin(9600);
@@ -68,17 +71,40 @@ void setup() {
     pinMode(LEFT_BACKWARD, OUTPUT);
     pinMode(RIGHT_FORWARD, OUTPUT);
     pinMode(RIGHT_BACKWARD, OUTPUT);
+
+    stopTime = millis();
+    stopped = true;
 }
 
 void loop() {
+    if(!stopped && millis() - stopTime >= 2500) {
+        stopped = true;
+        analogWrite(LEFT_FORWARD, 0);
+        analogWrite(LEFT_BACKWARD, 0);
+        analogWrite(RIGHT_FORWARD, 0);
+        analogWrite(RIGHT_BACKWARD, 0);
+    }
+
     if(BtSerial.available() < 1) return;
 
-    // For `x`, 0b01 means "turn right" while 0b10 means "turn left".
-    // For `y`, 0b01 means "forward", while 0b10 means "backward".
-    int packet = BtSerial.read();
-    int tx = packet & 0b0011, ty = (packet & 0b1100) >> 2;
-    
-    Config *pair = Config::configs[tx * 3 + ty];
-    pair[0].flush(LEFT_FORWARD, LEFT_BACKWARD);
-    pair[1].flush(RIGHT_FORWARD, RIGHT_BACKWARD);
+    unsigned int packet = BtSerial.read();
+    switch((packet >> 4) & 0b1111) {
+        case 0b1000:
+            stopTime = millis();
+            stopped = false;
+
+            break;
+        case 0b0100:
+            if(stopped) break;
+
+            // For `x`, 0b01 means "turn right" while 0b10 means "turn left".
+            // For `y`, 0b01 means "forward", while 0b10 means "backward".
+            int tx = packet & 0b0011, ty = (packet & 0b1100) >> 2;
+
+            Config *pair = Config::configs[tx * 3 + ty];
+            pair[0].flush(LEFT_FORWARD, LEFT_BACKWARD);
+            pair[1].flush(RIGHT_FORWARD, RIGHT_BACKWARD);
+
+            break;
+    }
 }

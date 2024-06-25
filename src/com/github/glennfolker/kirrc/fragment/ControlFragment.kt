@@ -43,6 +43,15 @@ class ControlFragment: Fragment(R.layout.fragment_control) {
             (btnView.context as? BluetoothConnector)?.cancel()
         }
 
+        val looper = Looper.getMainLooper();
+        val handler = Handler(looper)
+        handler.postDelayed(object: Runnable {
+            override fun run() {
+                (context as? BluetoothConnector)?.refresh()
+                handler.postDelayed(this, 1000)
+            }
+        }, 1000)
+
         return view
     }
 
