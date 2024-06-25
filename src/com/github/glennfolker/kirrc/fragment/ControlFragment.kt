@@ -12,6 +12,8 @@ class ControlFragment: Fragment(R.layout.fragment_control) {
     private lateinit var buttons: Array<ImageButton>
     private val axes: Array<Int> = Array(4) { 0 }
 
+    private var done = false;
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = super.onCreateView(inflater, container, savedInstanceState)!!
@@ -48,11 +50,16 @@ class ControlFragment: Fragment(R.layout.fragment_control) {
         handler.postDelayed(object: Runnable {
             override fun run() {
                 (context as? BluetoothConnector)?.refresh()
-                handler.postDelayed(this, 1000)
+                if(!done) handler.postDelayed(this, 1000)
             }
         }, 1000)
 
         return view
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        done = true
     }
 
     private fun update(context: Context) {
